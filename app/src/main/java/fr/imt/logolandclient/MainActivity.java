@@ -1,5 +1,6 @@
 package fr.imt.logolandclient;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private Button searchButton;
     private ImageView imageView;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,12 +107,20 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Must capture or pick an image first", Toast.LENGTH_LONG).show();
         } else {
             Bitmap image = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-            int imgSearchId = this.uploaduserimage(image);
-            Intent intent = new Intent(this, ResultActivity.class);
-            intent.putExtra(ID_IMG_SEARCH_KEY, imgSearchId);
-            startActivity(intent);
+            this.uploadUserImage(this, image);
         }
 
+    }
+
+    /**
+     * Start the ResultActivity
+     *
+     * @param imgSearchId
+     */
+    private void onSearchResult(int imgSearchId){
+        Intent intent = new Intent(this, ResultActivity.class);
+        intent.putExtra(ID_IMG_SEARCH_KEY, imgSearchId);
+        startActivity(intent);
     }
 
     /**
@@ -118,10 +128,27 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param image
      */
-    public int uploaduserimage(final Bitmap image) {
+    public void uploadUserImage(final Context context, final Bitmap image) {
         String stringImage = getStringImage(image);
-        //TODO
-        return 0;
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "https://www.random.org/integers/?num=1&min=0&max=1000&col=1&base=10&format=plain&rnd=new";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Call the method to change the view
+                        onSearchResult(Integer.parseInt(response));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, "That didn't work!", Toast.LENGTH_LONG).show();
+            }
+        });
+        queue.add(stringRequest);
+
     }
 
     /**
