@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private Button libraryButton;
     private Button searchButton;
     private ImageView imageView;
+    private ProgressBar loadingCircle;
 
 
     @Override
@@ -63,10 +65,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        captureButton = (Button) findViewById(R.id.button_capture);
-        libraryButton = (Button) findViewById(R.id.button_library);
-        searchButton = (Button) findViewById(R.id.button_search);
-        imageView = (ImageView) findViewById(R.id.imageView);
+        captureButton = findViewById(R.id.button_capture);
+        libraryButton = findViewById(R.id.button_library);
+        searchButton = findViewById(R.id.button_search);
+        imageView = findViewById(R.id.imageView);
+        loadingCircle = findViewById(R.id.loadingCircle);
 
     }
 
@@ -106,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
         if (imageView.getDrawable() == null) {
             Toast.makeText(this, "Must capture or pick an image first", Toast.LENGTH_LONG).show();
         } else {
+            searchButton.setVisibility(View.GONE);
+            loadingCircle.setVisibility(View.VISIBLE);
+            captureButton.setClickable(false);
+            libraryButton.setClickable(false);
             Bitmap image = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
             this.uploadUserImage(this, image);
         }
@@ -139,12 +146,21 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         // Call the method to change the view
+                        response = response.replaceAll("\\r|\\n", "");
                         onSearchResult(Integer.parseInt(response));
+                        searchButton.setVisibility(View.VISIBLE);
+                        loadingCircle.setVisibility(View.GONE);
+                        captureButton.setClickable(true);
+                        libraryButton.setClickable(true);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(context, "That didn't work!", Toast.LENGTH_LONG).show();
+                searchButton.setVisibility(View.VISIBLE);
+                loadingCircle.setVisibility(View.GONE);
+                captureButton.setClickable(true);
+                libraryButton.setClickable(true);
             }
         });
         queue.add(stringRequest);
@@ -191,5 +207,4 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
-
 }
