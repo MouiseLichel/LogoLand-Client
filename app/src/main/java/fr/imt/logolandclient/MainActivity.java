@@ -5,42 +5,28 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -70,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         searchButton = findViewById(R.id.button_search);
         imageView = findViewById(R.id.imageView);
         loadingCircle = findViewById(R.id.loadingCircle);
+
 
     }
 
@@ -136,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
      * @param image
      */
     public void uploadUserImage(final Context context, final Bitmap image) {
-        String stringImage = getStringImage(image);
+        /*String stringImage = getStringImage(image);
 
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://www.random.org/integers/?num=1&min=0&max=1000&col=1&base=10&format=plain&rnd=new";
@@ -163,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
                 libraryButton.setClickable(true);
             }
         });
-        queue.add(stringRequest);
-
+        queue.add(stringRequest);*/
+        onSearchResult(10);
     }
 
     /**
