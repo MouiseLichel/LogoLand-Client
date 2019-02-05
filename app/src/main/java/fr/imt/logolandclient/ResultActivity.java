@@ -1,19 +1,36 @@
 package fr.imt.logolandclient;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,98 +38,109 @@ public class ResultActivity extends AppCompatActivity {
 
     //private EditText numberText;
     private ListView resultListView;
+    private String searchLocation;
+    private ArrayList<Logo> logos;
+    private RequestQueue queue;
+    private ResultAdapter adapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
-
-        int imgSearchId = getIntent().getExtras().getInt(MainActivity.ID_IMG_SEARCH_KEY);
-        //numberText = findViewById(R.id.numberText);
-        //numberText.setText(""+imgSearchId);
-
         resultListView = findViewById(R.id.resultList);
+        queue = Volley.newRequestQueue(this);
 
-        List<Logo> logos = genererLogos();
-        ResultAdapter adapter = new ResultAdapter(this, logos);
+        Intent intent = getIntent();
+        searchLocation = intent.getStringExtra(MainActivity.ID_IMG_SEARCH_KEY);
+
+        logos = new ArrayList<>();
+        adapter = new ResultAdapter(this, logos);
         resultListView.setAdapter(adapter);
 
-
-
-
-    }
-    private List<Logo> genererLogos(){
-        List<Logo> logos = new ArrayList<Logo>();
-        logos.add(new Logo("Florent", Color.BLACK));
-        logos.add(new Logo("Kevin", Color.BLUE));
-        logos.add(new Logo("Logan", Color.GREEN));
-        logos.add(new Logo( "Mathieu", Color.RED));
-        logos.add(new Logo("Willy", Color.GRAY));
-        return logos;
-    }
-}
-
-class Logo{
-    private String logoName;
-    private int color;
-
-    public Logo(String logoName, int color) {
-        this.logoName = logoName;
-        this.color = color;
+        getSearchResult(this, searchLocation);
     }
 
-    public int getColor() {
-        return color;
+    /**
+     * Request the result list
+     *
+     * @param searchLocation
+     */
+    private void getSearchResult(final Context context, String searchLocation) {
+        final String url = searchLocation;
+        Log.i(MainActivity.TAG, "Request to " + url);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String resultsString = jsonResponse.getString("results");
+                            JSONArray resultsArray = new JSONArray(resultsString);
+                            for (int i = 0; i < resultsArray.length(); i++) {
+                                JSONObject result = resultsArray.getJSONObject(i);
+                                String resultImageUrl = result.getString("image_url");
+                                double resultscore = result.getDouble("score");
+                                Log.i(MainActivity.TAG, resultImageUrl + " - " + resultscore);
+                                logos.add(new Logo(""+resultscore, resultImageUrl));
+                            }
+
+                            /*JSONArray jsonResults  = jsonResponse.getJSONArray("results");
+                            for (int i = 0; i < jsonResults.length(); i++) {
+                                JSONObject jsonResult = jsonResults.getJSONObject(i);
+                                String resultImageUrl = jsonResult.getString("image_url");
+                                double resultscore = jsonResult.getDouble("score");
+                            }*/
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        //logos.add(new Logo("snow", "http://i.imgur.com/8lSRzQf.jpg"));
+                        adapter.notifyDataSetChanged();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, "GetSearchResult didn't work!", Toast.LENGTH_SHORT).show();
+                logos.add(new Logo("snow", "http://i.imgur.com/8lSRzQf.jpg"));
+                adapter.notifyDataSetChanged();
+            }
+        });
+        queue.add(stringRequest);
     }
 
-    public void setColor(int color) {
-        this.color = color;
-    }
-
-    public String getLogoName() {
-        return logoName;
-    }
-
-    public void setLogoName(String logoName) {
-        this.logoName = logoName;
-    }
 }
 
 class ResultAdapter extends ArrayAdapter<Logo> {
-
-    //tweets est la liste des models à afficher
-    public ResultAdapter(Context context, List<Logo> tweets) {
-        super(context, 0, tweets);
+    public ResultAdapter(Context context, List<Logo> logos) {
+        super(context, 0, logos);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        if(convertView == null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.result_layout,parent, false);
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.result_layout, parent, false);
         }
 
         ResultViewHolder viewHolder = (ResultViewHolder) convertView.getTag();
-        if(viewHolder == null){
+        if (viewHolder == null) {
             viewHolder = new ResultViewHolder();
-            viewHolder.logoName = (TextView) convertView.findViewById(R.id.logoName);
+            viewHolder.score = (TextView) convertView.findViewById(R.id.score);
             viewHolder.logoImage = (ImageView) convertView.findViewById(R.id.logoImage);
             convertView.setTag(viewHolder);
         }
 
-        //getItem(position) va récupérer l'item [position] de la List<Tweet> tweets
         Logo logo = getItem(position);
 
-        //il ne reste plus qu'à remplir notre vue
-        viewHolder.logoName.setText(logo.getLogoName());
-        viewHolder.logoImage.setImageDrawable(new ColorDrawable(logo.getColor()));
+        viewHolder.score.setText(logo.getScore());
+        viewHolder.logoImage.setImageDrawable(ImageUtils.loadImageFromWebOperations(logo.getUrl()));
 
         return convertView;
     }
 
-    private class ResultViewHolder{
-        public TextView logoName;
+    private class ResultViewHolder {
+        public TextView score;
         public ImageView logoImage;
     }
 }
