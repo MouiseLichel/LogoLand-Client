@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="10dp" >
+
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="262dp"
+        android:layout_height="187dp"
+        tools:background="#AAA" />
+
+    <TextView
+        android:id="@+id/score"
+        android:layout_width="113dp"
+        android:layout_height="19dp"
+        android:layout_alignTop="@+id/logoImage"
+        android:layout_alignBottom="@+id/logoImage"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="38dp"
+        android:layout_marginEnd="26dp"
+        android:layout_marginBottom="129dp"
+        android:layout_toEndOf="@+id/logoImage"
+        android:layout_toRightOf="@+id/logoImage"
+        tools:text="Score" />
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="122dp"
+        android:layout_height="29dp"
+        android:layout_alignTop="@+id/logoImage"
+        android:layout_alignBottom="@+id/logoImage"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="91dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="67dp"
+        android:layout_toEndOf="@+id/logoImage"
+        android:button="@drawable/cross_check_box"
+        android:onClick="checkboxHandler"
+        android:text="Is Valid ?" />
+
+</RelativeLayout>
