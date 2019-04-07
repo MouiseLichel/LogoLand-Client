@@ -7,10 +7,19 @@ import java.io.Serializable;
 public class Logo implements Serializable {
     private String score;
     private String url;
+    private boolean isValid = true;
 
     public Logo(String logoName, String url) {
         this.score = logoName;
         this.url = url;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setValid(boolean valid) {
+        isValid = valid;
     }
 
     public String getUrl() {

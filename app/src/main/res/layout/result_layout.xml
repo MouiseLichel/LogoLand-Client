@@ -38,6 +38,7 @@
         android:layout_marginBottom="67dp"
         android:layout_toEndOf="@+id/logoImage"
         android:button="@drawable/cross_check_box"
+        android:onClick="checkboxHandler"
         android:text="Is Valid ?" />
 
 </RelativeLayout>

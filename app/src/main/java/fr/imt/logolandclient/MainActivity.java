@@ -119,8 +119,10 @@ public class MainActivity extends AppCompatActivity {
      * @param image
      */
     public void uploadUserImage(final Context context, final Bitmap image) {
-        //String url = "http://10.0.2.2:8000/img_searches/";
-        String url = "http://192.168.43.92:8000/img_searches/";
+        //Url émulateur
+        String url = "http://10.0.2.2:8000/img_searches/";
+        //Url si réseau local, à modifier en fonction de l'ip du serveur
+        //String url = "http://192.168.43.92:8000/img_searches/";
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -136,8 +138,6 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(context, "Upload did not work!", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Upload didn't work!");
-                //Log.e(TAG, error.getLocalizedMessage());
-                //Log.e(TAG, ""+error.networkResponse.statusCode);
                 searchButton.setVisibility(View.VISIBLE);
                 loadingCircle.setVisibility(View.GONE);
                 captureButton.setClickable(true);
